@@ -104,9 +104,17 @@ const employeeSchema = new mongoose.Schema(
             required: true
 
         },
+        activities: [
+            {
+                userID: String,
+                active_window: String,
+                current_time: String
+            }
+        ],
 
         professional_details: professionalDetailsSchema,
     },
+
     {
         timestamps: true,
     }

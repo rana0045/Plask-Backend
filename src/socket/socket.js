@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
+import asyncHandler from "../utils/asyncHandler.js";
 
-const startSocketServer = (server) => {
+const startSocketServer = asyncHandler(async (server) => {
 
     const io = new Server(server, {
         cors: {
@@ -9,13 +10,20 @@ const startSocketServer = (server) => {
         }
     });
 
+
+    const activities = []
+
     io.on("connection", (socket) => {
         console.log("A user connected",);
 
         socket.on("message", (data) => {
             console.log("Received message:", data);
 
-            // Send a response back to the client
+
+            activities.push(data)
+
+            console.log("activities:", activities);
+
             socket.emit("hello", data)
             socket.emit("message", "Message received successfully!");
         });
@@ -26,17 +34,15 @@ const startSocketServer = (server) => {
             // Handle disconnection event
         });
 
-        // Custom event listener example
-        socket.on("customEvent", (data) => {
-            console.log("Received message:", data);
 
-            // Send a response back to the client
-            socket.emit("response", "Message received successfully!");
 
-            // Handle custom event here
-        });
     });
-};
 
-
+})
 export { startSocketServer };
+
+
+
+
+
+

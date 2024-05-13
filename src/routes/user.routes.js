@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, loginUser, updateUser, logoutUser, googleRegister, googleLogin } from "../controllers/user.controller.js";
+import { registerUser, loginUser, updateUser, logoutUser, googleLogin } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
 
@@ -16,7 +16,7 @@ router.route("/logout").post(
     verifyJWT,
     logoutUser
 )
-router.route("/googleregister").post(googleRegister)
+
 router.route("/googlelogin").post(googleLogin)
 
 
