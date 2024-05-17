@@ -1,4 +1,4 @@
-import { createEmployee, getEmployee, deleteEmployee, updateEmployee } from "../controllers/employee.controller.js";
+import { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey } from "../controllers/employee.controller.js";
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
@@ -11,14 +11,21 @@ const router = Router();
 router.route("/add").post(
     verifyJWT,
     createEmployee)
+//get the all employees data
 router.route("/get").get(
     verifyJWT,
     getEmployee)
+//delete the employee data
 router.route("/delete").delete(
     verifyJWT,
     deleteEmployee)
+//update the employee data
 router.route("/update").put(
     verifyJWT,
     updateEmployee)
+//get the single employee data
+router.route("/key").get(
+    verifyJWT,
+    getEmployeeByKey)
 
 export default router 

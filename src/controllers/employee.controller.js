@@ -59,25 +59,24 @@ const createEmployee = asyncHandler(async (req, res) => {
 })
 
 
-const getEmployee = (asyncHandler(async (req, res) => {
-    const id = await req.query.userId
+const getEmployee = asyncHandler(async (req, res) => {
+    const id = req.query.userId;
 
     if (!id) {
-        const employees = await Employee.find({ userEmail: req.user.email })
-        res.status(200).json(new ApiResponse(200, employees,))
+        const employees = await Employee.find({ userEmail: req.user.email });
+        res.status(200).json(new ApiResponse(200, employees));
+        return; // Important: return to avoid executing further code
     }
 
-    const employee = await Employee.findById(id)
+    const employee = await Employee.findById(id);
 
     if (!employee) {
-        res.status(404).json(new ApiResponse(404, "Employee not found", ""))
-        throw new ApiError(404, "Employee not found")
+        res.status(404).json(new ApiResponse(404, "Employee not found", ""));
+        return; // Important: return to avoid executing further code
     }
 
-    res.status(200).json(new ApiResponse(200, employee, ""))
-
-}))
-
+    res.status(200).json(new ApiResponse(200, employee, ""));
+});
 
 const deleteEmployee = asyncHandler(async (req, res) => {
     const id = await req.query.userId
@@ -101,7 +100,7 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 })
 
 
-const updateEmployee = (asyncHandler(async (req, res) => {
+const updateEmployee = asyncHandler(async (req, res) => {
     const id = req.query.userId
     const updates = await req.body
 
@@ -132,6 +131,28 @@ const updateEmployee = (asyncHandler(async (req, res) => {
 
     res.status(200).json(new ApiResponse(200, employee, "Employee updated successfully!"))
 
-}))
+})
 
-export { createEmployee, getEmployee, deleteEmployee, updateEmployee }
+const getEmployeeByKey = asyncHandler(async (req, res) => {
+    const key = req.query.key
+
+    if (!key) {
+        res.status(404).json(new ApiResponse(404, {}, "invalid key"))
+        throw new ApiError(404, "Invalid key")
+
+    }
+    const employee = await Employee.findOne({ key })
+    if (!employee) {
+        res.status(404).json(new ApiResponse(404, {}, "invalid key , Employee not  found"))
+        throw new ApiError(404, "Invalid key")
+
+    }
+    res.status(200).json(new ApiResponse(200, employee, "Employee found successfully"))
+
+
+})
+
+export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey }
+
+
+

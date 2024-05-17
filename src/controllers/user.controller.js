@@ -81,9 +81,11 @@ const loginUser = asyncHandler(async (req, res) => {
     const loggedInUser = await User.findById(user.id).select("-password -refreshToken");
 
     const options = {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: false, // Set to true for HTTPS, required when SameSite=None
+        sameSite: 'None' // Required for cookies to be sent in cross-origin requests
     };
+
 
     return res
         .status(200)
@@ -91,8 +93,6 @@ const loginUser = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully!"));
 });
-
-
 
 const updateUser = asyncHandler(async (req, res) => {
     const updates = await req.body;
@@ -138,54 +138,68 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const googleLogin = asyncHandler(async (req, res) => {
-    //get the user data from req body
+    // Get the user data from req body
     const { firstName, lastName, email, image } = req.body;
 
-    const options = {
-        httpOnly: true,
-        secure: false,
-    };
-
-    //validate the data coming from the user
-    if ([firstName, lastName, email, image].some((field) => field?.trim() === "")) {
-        res.status(400).json(404, "All fields are required");
-        throw new ApiError(404, "All fields are required");
+    // Validate the incoming data
+    if ([firstName, lastName, email, image].some((field) => !field?.trim())) {
+        res.status(400).json(new ApiResponse(400, "", "All fields are required"));
+        return;
     }
 
-    //check if the user already exists
+    // Check if the user already exists
     const userExists = await User.find({ email }).select("-password -refreshToken");
 
+    // If user exists, generate tokens and send response
     if (userExists.length > 0) {
         const { accessToken, refreshToken } = await generateTokens(userExists[0]._id);
+        const options = {
+            httpOnly: false,
+            secure: true,
+            sameSiteL: "none",
+
+        };
+
+
         res
             .status(200)
             .cookie("accessToken", accessToken, options)
             .cookie("refreshToken", refreshToken, options)
             .json(new ApiResponse(200, { user: userExists, accessToken, refreshToken }, "User logged in successfully!"));
+        return; // Important: return to avoid executing further code
     }
 
-    //create a new user
+    // Create a new user
     const user = await User.create({
         firstName,
         lastName,
         email,
         image,
     });
-
-    //check if user created or not
-    const createdUser = await User.findById(user.id);
-
-    if (!createdUser) {
+    // Check if user created successfully
+    if (!user) {
         throw new ApiError(500, "Something went wrong creating user");
     }
-
+    // Generate tokens for the new user
     const { accessToken, refreshToken } = await generateTokens(user._id);
-
+    const options = {
+        httpOnly: false,
+        secure: false, // Set to true for HTTPS, required when SameSite=None
+    };
+    // Send response for the new user
     res
         .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(new ApiResponse(200, { user: createdUser, accessToken, refreshToken }, "User created successfully!"));
+        .json(new ApiResponse(200, { user, accessToken, refreshToken }, "User created successfully!"));
 });
 
 export { registerUser, loginUser, updateUser, logoutUser, googleLogin };
+
+
+
+
+
+
+
+
