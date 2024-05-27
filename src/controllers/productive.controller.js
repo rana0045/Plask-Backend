@@ -15,13 +15,13 @@ const isProductive = asyncHandler(async (req, res) => {
     const newData = await Productive.create({
         executable: executable,
         isProductive: isProductive,
-        url: url || ""
+        url: url || "",
+        user: req.user._id
     })
 
     res.status(200).json(new ApiResponse(200, newData, "Data added successfully"))
 
 })
-
 
 const getProductive = asyncHandler(async (req, res) => {
 
@@ -39,13 +39,13 @@ const getProductiveByID = asyncHandler(async (req, res) => {
         throw new ApiError(400, "executable is required")
     }
 
-    const data = await Productive.findById(id)
+    const data = await Productive.findById(id).populate("User")
 
 
     res.status(200).json(new ApiResponse(200, data, "Data fetched successfully"))
 })
 
-
-
-
 export { isProductive, getProductive, getProductiveByID }
+
+
+

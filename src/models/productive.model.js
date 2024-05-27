@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const productiveSchema = new mongoose.Schema({
     executable: {
@@ -7,6 +7,11 @@ const productiveSchema = new mongoose.Schema({
     },
     isProductive: {
         type: Boolean,
+        required: true
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     url: String
