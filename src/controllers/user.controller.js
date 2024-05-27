@@ -81,7 +81,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const loggedInUser = await User.findById(user.id).select("-password -refreshToken");
 
     const options = {
-        httpOnly: true,
+        httpOnly: false,
         secure: false, // Set to true for HTTPS, required when SameSite=None
         sameSite: 'None' // Required for cookies to be sent in cross-origin requests
     };
@@ -155,18 +155,18 @@ const googleLogin = asyncHandler(async (req, res) => {
         const { accessToken, refreshToken } = await generateTokens(userExists[0]._id);
         const options = {
             httpOnly: false,
-            secure: true,
-            sameSiteL: "none",
-
+            secure: false, // Set to true if using HTTPS in production
+            sameSite: "None", // Ensure this is correctly spelled
         };
 
+        // Set cookie
 
         res
             .status(200)
             .cookie("accessToken", accessToken, options)
             .cookie("refreshToken", refreshToken, options)
             .json(new ApiResponse(200, { user: userExists, accessToken, refreshToken }, "User logged in successfully!"));
-        return; // Important: return to avoid executing further code
+        return
     }
 
     // Create a new user
@@ -184,7 +184,9 @@ const googleLogin = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateTokens(user._id);
     const options = {
         httpOnly: false,
-        secure: false, // Set to true for HTTPS, required when SameSite=None
+        secure: false,
+        sameSiteL: "none",
+
     };
     // Send response for the new user
     res
@@ -195,6 +197,12 @@ const googleLogin = asyncHandler(async (req, res) => {
 });
 
 export { registerUser, loginUser, updateUser, logoutUser, googleLogin };
+
+
+
+
+
+
 
 
 

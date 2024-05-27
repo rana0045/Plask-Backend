@@ -6,14 +6,14 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 
 const isProductive = asyncHandler(async (req, res) => {
-    const { key, isProductive, url } = req.body
-    if (!key) {
-        res.status(400).json(new ApiResponse(400, {}, "key is required"))
-        throw new ApiError(400, "key is required")
+    const { executable, isProductive, url } = req.body
+    if (!executable) {
+        res.status(400).json(new ApiResponse(400, {}, "executable is required"))
+        throw new ApiError(400, "executable is required")
     }
 
     const newData = await Productive.create({
-        key: key,
+        executable: executable,
         isProductive: isProductive,
         url: url || ""
     })
@@ -35,8 +35,8 @@ const getProductiveByID = asyncHandler(async (req, res) => {
 
     const id = req.query.id
     if (!id) {
-        res.status(400).json(new ApiResponse(400, {}, "key is required"))
-        throw new ApiError(400, "key is required")
+        res.status(400).json(new ApiResponse(400, {}, "executable is required"))
+        throw new ApiError(400, "executable is required")
     }
 
     const data = await Productive.findById(id)

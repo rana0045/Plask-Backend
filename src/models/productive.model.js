@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productiveSchema = new mongoose.Schema({
-    key: {
+    executable: {
         type: String,
         required: true
     },

@@ -7,7 +7,7 @@ import ApiError from "../utils/ApiError.js";
 const updateEmployeeActivities = async (data) => {
     try {
 
-        console.log(data);
+
         const employee = await Employee.findOne({ key: data[1].userID })
 
         if (!employee) {
@@ -48,7 +48,7 @@ const startSocketServer = asyncHandler(async (server) => {
             activities.push(data)
 
             console.log("activities:", activities.length);
-            if (activities.length >= 2) {
+            if (activities.length >= 10) {
                 updateEmployeeActivities(activities)
                 activities = []
             }

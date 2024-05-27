@@ -58,7 +58,6 @@ const createEmployee = asyncHandler(async (req, res) => {
 
 })
 
-
 const getEmployee = asyncHandler(async (req, res) => {
     const id = req.query.userId;
 
@@ -98,7 +97,6 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 
 
 })
-
 
 const updateEmployee = asyncHandler(async (req, res) => {
     const id = req.query.userId
@@ -151,6 +149,8 @@ const getEmployeeByKey = asyncHandler(async (req, res) => {
 
 
 })
+
+
 
 export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey }
 
