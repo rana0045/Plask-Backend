@@ -25,7 +25,10 @@ const isProductive = asyncHandler(async (req, res) => {
 
 const getProductive = asyncHandler(async (req, res) => {
 
-    const data = await Productive.find()
+    const id = req.user._id
+
+    const data = await Productive.find({ user: id })
+
 
     res.status(200).json(new ApiResponse(200, data, "Data fetched successfully"))
 
@@ -39,7 +42,8 @@ const getProductiveByID = asyncHandler(async (req, res) => {
         throw new ApiError(400, "executable is required")
     }
 
-    const data = await Productive.findById(id).populate("User")
+
+    const data = await Productive.findById(id).populate("user")
 
 
     res.status(200).json(new ApiResponse(200, data, "Data fetched successfully"))
