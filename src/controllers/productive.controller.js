@@ -61,7 +61,28 @@ const deleteProductiveByID = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, Data, "Data deleted successfully"))
 })
 
-export { isProductive, getProductive, getProductiveByID, deleteProductiveByID }
+const updateProductiveByID = asyncHandler(async (req, res) => {
+    const id = req.query.id
+    const { executable, isProductive, url } = req.body
+    if (!id) {
+        res.status(400).json(new ApiResponse(400, {}, "ID is required"))
+        throw new ApiError(400, "ID is required")
+    }
+
+    const data = await Productive.findByIdAndUpdate(id, {
+        executable: executable,
+        isProductive: isProductive,
+        url: url
+    }, { new: true, runValidators: false })
+
+    if (!data) {
+        res.status(400).json(new ApiResponse(400, {}, "record not found"))
+        throw new ApiError(400, "record not found")
+    }
+    res.status(200).json(new ApiResponse(200, data, "Data updated successfully"))
+
+})
+export { isProductive, getProductive, getProductiveByID, deleteProductiveByID, updateProductiveByID }
 
 
 
