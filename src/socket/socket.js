@@ -48,6 +48,8 @@ const startSocketServer = asyncHandler(async (server) => {
             activities.push(data)
 
             console.log("activities:", activities.length);
+
+            settimeout(() => { })
             if (activities.length >= 10) {
                 updateEmployeeActivities(activities)
                 activities = []

@@ -64,7 +64,7 @@ const employeeSchema = new mongoose.Schema(
             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         },
         dob: {
-            type: Date,
+            type: String,
             required: true,
         },
         maritalStatus: {
