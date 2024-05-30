@@ -117,7 +117,7 @@ const updateEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email already exists")
     }
 
-    const employee = await Employee.findById(id)
+    const employee = await Employee.findById(id).select("-activities")
 
     if (!employee) {
         res.status(404).json(new ApiResponse(404, "Employee not found", ""))
