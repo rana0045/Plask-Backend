@@ -151,8 +151,26 @@ const getEmployeeByKey = asyncHandler(async (req, res) => {
 })
 
 
+const getEmployeesActivity = asyncHandler(async (req, res) => {
+    const id = req.query.id
 
-export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey }
+    if (!id) {
+        res.status(400).json(new ApiResponse(400, "Invalid employee id", ""))
+        throw new ApiError(400, "Invalid employee id")
+    }
+
+    const employee = await Employee.findById(id)
+
+    if (!employee) {
+        res.status(404).json(new ApiResponse(404, "Employee not found", ""))
+        throw new ApiError(404, "Employee not found")
+    }
+
+    res.status(200).json(new ApiResponse(200, employee.activities, "Employee activities "))
+})
+
+
+export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity }
 
 
 

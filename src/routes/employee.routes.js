@@ -1,4 +1,4 @@
-import { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey } from "../controllers/employee.controller.js";
+import { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity } from "../controllers/employee.controller.js";
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
@@ -25,5 +25,6 @@ router.route("/update").put(
     updateEmployee)
 //get the single employee data
 router.route("/key").get(getEmployeeByKey)
+router.route("/activity").get(verifyJWT, getEmployeesActivity)
 
 export default router 
