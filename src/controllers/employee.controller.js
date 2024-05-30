@@ -110,7 +110,9 @@ const updateEmployee = asyncHandler(async (req, res) => {
     const email = updates.email
     const isEmailExist = await Employee.findOne({ email })
 
-    if (isEmailExist && isEmailExist._id !== id && isEmailExist.email === email) {
+
+
+    if (isEmailExist && isEmailExist._id.toString() !== id && isEmailExist.email === email) {
         res.status(400).json(new ApiResponse(400, "Email already exists", ""))
         throw new ApiError(400, "Email already exists")
     }
