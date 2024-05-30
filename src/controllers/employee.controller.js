@@ -62,12 +62,12 @@ const getEmployee = asyncHandler(async (req, res) => {
     const id = req.query.userId;
 
     if (!id) {
-        const employees = await Employee.find({ userEmail: req.user.email });
+        const employees = await Employee.find({ userEmail: req.user.email }).select("-activities");
         res.status(200).json(new ApiResponse(200, employees));
         return; // Important: return to avoid executing further code
     }
 
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findById(id).select("-activities");
 
     if (!employee) {
         res.status(404).json(new ApiResponse(404, "Employee not found", ""));
@@ -141,7 +141,7 @@ const getEmployeeByKey = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Invalid key")
 
     }
-    const employee = await Employee.findOne({ key })
+    const employee = await Employee.findOne({ key }).select("-activities")
     if (!employee) {
         res.status(404).json(new ApiResponse(404, {}, "invalid key , Employee not  found"))
         throw new ApiError(404, "Invalid key")
