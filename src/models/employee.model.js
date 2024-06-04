@@ -108,7 +108,14 @@ const employeeSchema = new mongoose.Schema(
             {
                 userID: String,
                 active_window: String,
-                current_time: String
+                current_url: String,
+                current_time: String,
+                time_spent: String,
+                productivity: {
+                    type: String,
+                    enum: ["Productive", "Unproductive", "Unidentified"],
+                    default: "Unidentified"
+                }
             }
         ],
 
@@ -121,4 +128,3 @@ const employeeSchema = new mongoose.Schema(
 );
 
 export const Employee = mongoose.model("Employees", employeeSchema);
-

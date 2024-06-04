@@ -197,17 +197,3 @@ const googleLogin = asyncHandler(async (req, res) => {
 });
 
 export { registerUser, loginUser, updateUser, logoutUser, googleLogin };
-
-
-
-
-
-
-
-
-
-
-
-
-
-

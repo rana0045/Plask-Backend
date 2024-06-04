@@ -2,7 +2,7 @@ import { Employee } from "../models/employee.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-
+import Productive from "../models/productive.model.js";
 
 const createEmployee = asyncHandler(async (req, res) => {
 
@@ -155,6 +155,7 @@ const getEmployeeByKey = asyncHandler(async (req, res) => {
 
 const getEmployeesActivity = asyncHandler(async (req, res) => {
     const id = req.query.id
+    const userID = req.user._id
 
     if (!id) {
         res.status(400).json(new ApiResponse(400, "Invalid employee id", ""))
@@ -162,6 +163,27 @@ const getEmployeesActivity = asyncHandler(async (req, res) => {
     }
 
     const employee = await Employee.findById(id)
+    const productiveDataList = await Productive.find({ user: userID });
+
+    const updatedActivities = employee.activities.map(activity => {
+        let isProductive = "Unidentified"
+
+        for (const isPro of productiveDataList) {
+
+            if (activity.active_window.includes(isPro.executable) && isPro.isProductive === true) {
+                isProductive = "Productive"
+                break
+            } else if (activity.active_window.includes(isPro.executable) && isPro.isProductive === false) {
+                isProductive = "UnProductive"
+                break
+            }
+        }
+        activity.productivity = isProductive;
+        return activity;
+    })
+
+    employee.activities = updatedActivities;
+    await employee.save();
 
     if (!employee) {
         res.status(404).json(new ApiResponse(404, "Employee not found", ""))
