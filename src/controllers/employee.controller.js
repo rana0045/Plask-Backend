@@ -207,37 +207,87 @@ const getActivitiesData = asyncHandler(async (req, res) => {
 
     const allActivities = data.flat()
 
-    const months = {};
+    const days = {};
 
     allActivities.forEach(entry => {
         const date = new Date(entry.start_time);
-        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`; // "YYYY-MM" format
+        const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; // "YYYY-MM-DD" format
 
-        if (!months[monthKey]) {
-            months[monthKey] = { productive: 0, unproductive: 0, unidentified: 0 };
+        if (!days[dayKey]) {
+            days[dayKey] = { productive: 0, unproductive: 0, unidentified: 0 };
         }
 
         const timeInHours = entry.time_spent / 3600; // Convert seconds to hours
 
         if (entry.productivity === "Productive") {
-            months[monthKey].productive += timeInHours;
+            days[dayKey].productive += timeInHours;
         } else if (entry.productivity === "Unidentified") {
-            months[monthKey].unidentified += timeInHours;
+            days[dayKey].unidentified += timeInHours;
         } else if (entry.productivity === "Unproductive") {
-            months[monthKey].unproductive += timeInHours;
+            days[dayKey].unproductive += timeInHours;
         }
     });
 
-    const productivity = Object.keys(months).map(month => ({
+    const productivity = Object.keys(days).map(day => ({
 
-        productive: months[month].productive.toFixed(2),
-        unproductive: months[month].unproductive.toFixed(2),
-        unidentified: months[month].unidentified.toFixed(2)
+        productive: days[day].productive.toFixed(2),
+        unproductive: days[day].unproductive.toFixed(2),
+        unidentified: days[day].unidentified.toFixed(2)
     }));
+
+
+
 
     return res.status(200).json(new ApiResponse(200, productivity))
 
 
 })
 
-export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData }
+
+const getActivitiesDataSingle = asyncHandler(async (req, res) => {
+
+    const id = req.params.id;
+    const activities = await Employee.findById(id)
+
+    const data = activities.map((item) => {
+        return item.activities
+    })
+
+
+    const allActivities = data.flat()
+
+    const days = {};
+
+    allActivities.forEach(entry => {
+        const date = new Date(entry.start_time);
+        const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; // "YYYY-MM-DD" format
+
+        if (!days[dayKey]) {
+            days[dayKey] = { productive: 0, unproductive: 0, unidentified: 0 };
+        }
+
+        const timeInHours = entry.time_spent / 3600; // Convert seconds to hours
+
+        if (entry.productivity === "Productive") {
+            days[dayKey].productive += timeInHours;
+        } else if (entry.productivity === "Unidentified") {
+            days[dayKey].unidentified += timeInHours;
+        } else if (entry.productivity === "Unproductive") {
+            days[dayKey].unproductive += timeInHours;
+        }
+    });
+
+    const productivity = Object.keys(days).map(day => ({
+
+        productive: days[day].productive.toFixed(2),
+        unproductive: days[day].unproductive.toFixed(2),
+        unidentified: days[day].unidentified.toFixed(2)
+    }));
+
+
+
+
+    return res.status(200).json(new ApiResponse(200, productivity))
+})
+
+export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData, getActivitiesDataSingle }
