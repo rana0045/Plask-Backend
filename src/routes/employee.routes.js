@@ -26,5 +26,5 @@ router.route("/update").put(
 //get the single employee data
 router.route("/key").get(getEmployeeByKey)
 router.route("/activity").get(verifyJWT, getEmployeesActivity)
-router.route("/activity/data").get(getActivitiesData)
+router.route("/activity/data").get(verifyJWT, getActivitiesData)
 export default router 
