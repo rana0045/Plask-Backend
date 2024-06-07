@@ -2,24 +2,44 @@ import { Server } from "socket.io";
 import asyncHandler from "../utils/asyncHandler.js";
 import { Employee } from "../models/employee.model.js"
 import ApiError from "../utils/ApiError.js";
-
-
+import Productive from "../models/productive.model.js";
+import { User } from "../models/user.model.js";
 const updateEmployeeActivities = async (data) => {
     try {
+        // Check if req.user is defined and has the _id property
 
 
-        const employee = await Employee.findOne({ key: data[1].userID })
+
+        const employee = await Employee.findOne({ key: data[0].userID });
 
         if (!employee) {
-
-            throw new ApiError(404, "Employee not found")
+            throw new ApiError(404, "Employee not found");
         }
+
+        const productiveDataList = await Productive.find({ user: userID });
+
+        // Map of productive executables for quick lookup
+        const productiveExecutables = productiveDataList.reduce((map, item) => {
+            map[item.executable] = item.isProductive;
+            return map;
+        }, {});
+
+        // Update the productivity flag if there's a match with productive executables
+        data.forEach(activity => {
+            if (productiveExecutables[activity.active_window] === true) {
+                activity.productivity = 'Productive';
+            } else if (productiveExecutables[activity.active_window] === false) {
+                activity.productivity = 'Unproductive';
+            } else {
+                activity.productivity = 'Unidentified';
+            }
+        });
+
         employee.activities.push(...data);
-
-
         const savedEmployee = await employee.save();
 
         console.log(savedEmployee);
+        return { success: true, message: "Employee activities updated successfully" };
 
     } catch (error) {
         console.error("Error updating employee activities:", error.message);

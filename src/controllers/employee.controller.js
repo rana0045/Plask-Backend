@@ -154,47 +154,90 @@ const getEmployeeByKey = asyncHandler(async (req, res) => {
 
 
 const getEmployeesActivity = asyncHandler(async (req, res) => {
-    const id = req.query.id
-    const userID = req.user._id
+    const id = req.query.id;
+    const userID = req.user._id;
 
     if (!id) {
-        res.status(400).json(new ApiResponse(400, "Invalid employee id", ""))
-        throw new ApiError(400, "Invalid employee id")
+        res.status(400).json(new ApiResponse(400, "Invalid employee id", ""));
+        throw new ApiError(400, "Invalid employee id");
     }
 
-    const employee = await Employee.findById(id)
+    const employee = await Employee.findById(id);
+    if (!employee) {
+        res.status(404).json(new ApiResponse(404, "Employee not found", ""));
+        throw new ApiError(404, "Employee not found");
+    }
+
     const productiveDataList = await Productive.find({ user: userID });
 
     const updatedActivities = employee.activities.map(activity => {
-        let isProductive = "Unidentified"
+        let isProductive = "Unidentified";
 
-        for (const isPro of productiveDataList) {
-
-            if (activity.active_window.includes(isPro.executable) && isPro.isProductive === true) {
-                isProductive = "Productive"
-                break
-            } else if (activity.active_window.includes(isPro.executable) && isPro.isProductive === false) {
-                isProductive = "UnProductive"
-                break
+        if (activity.active_window) {
+            for (const isPro of productiveDataList) {
+                if (activity.active_window.includes(isPro.executable) && isPro.isProductive === true) {
+                    isProductive = "Productive";
+                    break;
+                } else if (activity.active_window.includes(isPro.executable) && isPro.isProductive === false) {
+                    isProductive = "Unproductive";
+                    break;
+                }
             }
         }
+
         activity.productivity = isProductive;
         return activity;
-    })
+    });
 
     employee.activities = updatedActivities;
     await employee.save();
 
-    if (!employee) {
-        res.status(404).json(new ApiResponse(404, "Employee not found", ""))
-        throw new ApiError(404, "Employee not found")
-    }
+    res.status(200).json(new ApiResponse(200, employee.activities, "Employee activities"));
+});
 
-    res.status(200).json(new ApiResponse(200, employee.activities, "Employee activities "))
+
+const getActivitiesData = asyncHandler(async (req, res) => {
+
+    const activities = await Employee.find()
+
+    const data = activities.map((item) => {
+        return item.activities
+    })
+
+
+    const allActivities = data.flat()
+
+    const months = {};
+
+    allActivities.forEach(entry => {
+        const date = new Date(entry.start_time);
+        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`; // "YYYY-MM" format
+
+        if (!months[monthKey]) {
+            months[monthKey] = { productive: 0, unproductive: 0, unidentified: 0 };
+        }
+
+        const timeInHours = entry.time_spent / 3600; // Convert seconds to hours
+
+        if (entry.productivity === "Productive") {
+            months[monthKey].productive += timeInHours;
+        } else if (entry.productivity === "Unidentified") {
+            months[monthKey].unidentified += timeInHours;
+        } else if (entry.productivity === "Unproductive") {
+            months[monthKey].unproductive += timeInHours;
+        }
+    });
+
+    const productivity = Object.keys(months).map(month => ({
+
+        productive: months[month].productive.toFixed(2),
+        unproductive: months[month].unproductive.toFixed(2),
+        unidentified: months[month].unidentified.toFixed(2)
+    }));
+
+    return res.status(200).json(new ApiResponse(200, productivity))
+
+
 })
 
-
-export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity }
-
-
-
+export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData }

@@ -111,11 +111,17 @@ const employeeSchema = new mongoose.Schema(
                 current_url: String,
                 current_time: String,
                 time_spent: String,
+                pc_name: String,
+                start_time: String,
+                end_time: String,
                 productivity: {
                     type: String,
                     enum: ["Productive", "Unproductive", "Unidentified"],
                     default: "Unidentified"
                 }
+            },
+            {
+                timestamps: true
             }
         ],
 

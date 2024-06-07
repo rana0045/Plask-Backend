@@ -82,6 +82,7 @@ const updateProductiveByID = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, data, "Data updated successfully"))
 
 })
+
 export { isProductive, getProductive, getProductiveByID, deleteProductiveByID, updateProductiveByID }
 
 
