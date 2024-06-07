@@ -230,9 +230,9 @@ const getActivitiesData = asyncHandler(async (req, res) => {
 
     const productivity = Object.keys(days).map(day => ({
 
-        productive: days[day].productive.toFixed(2),
-        unproductive: days[day].unproductive.toFixed(2),
-        unidentified: days[day].unidentified.toFixed(2)
+        productive: days[day].productive,
+        unproductive: days[day].unproductive,
+        unidentified: days[day].unidentified
     }));
 
 
@@ -245,20 +245,23 @@ const getActivitiesData = asyncHandler(async (req, res) => {
 
 
 const getActivitiesDataSingle = asyncHandler(async (req, res) => {
+    const id = req.query.id;
 
-    const id = req.params.id;
-    const activities = await Employee.findById(id)
+    if (!id) {
+        res.status(400).json(new ApiResponse(400, "Invalid employee id", ""));
+        throw new ApiError(400, "Invalid employee id");
+    }
 
-    const data = activities.map((item) => {
-        return item.activities
-    })
+    const activities = await Employee.findById(id);
 
-
-    const allActivities = data.flat()
+    if (!activities) {
+        res.status(404).json(new ApiResponse(404, "Employee not found", ""));
+        throw new ApiError(404, "Employee not found");
+    }
 
     const days = {};
 
-    allActivities.forEach(entry => {
+    activities.activities.forEach(entry => {
         const date = new Date(entry.start_time);
         const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; // "YYYY-MM-DD" format
 
@@ -266,11 +269,13 @@ const getActivitiesDataSingle = asyncHandler(async (req, res) => {
             days[dayKey] = { productive: 0, unproductive: 0, unidentified: 0 };
         }
 
-        const timeInHours = entry.time_spent / 3600; // Convert seconds to hours
+        const timeInHours = parseFloat(entry.time_spent) / 3600; // Convert seconds to hours
+
 
         if (entry.productivity === "Productive") {
             days[dayKey].productive += timeInHours;
         } else if (entry.productivity === "Unidentified") {
+
             days[dayKey].unidentified += timeInHours;
         } else if (entry.productivity === "Unproductive") {
             days[dayKey].unproductive += timeInHours;
@@ -278,16 +283,14 @@ const getActivitiesDataSingle = asyncHandler(async (req, res) => {
     });
 
     const productivity = Object.keys(days).map(day => ({
-
-        productive: days[day].productive.toFixed(2),
-        unproductive: days[day].unproductive.toFixed(2),
-        unidentified: days[day].unidentified.toFixed(2)
+        productive: days[day].productive,
+        unproductive: days[day].unproductive,
+        unidentified: days[day].unidentified
     }));
 
+    const email = activities.email;
+    return res.status(200).json(new ApiResponse(200, { productivity, email: email }, "Chart Data"));
+});
 
-
-
-    return res.status(200).json(new ApiResponse(200, productivity))
-})
 
 export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData, getActivitiesDataSingle }
