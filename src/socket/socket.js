@@ -16,24 +16,7 @@ const updateEmployeeActivities = async (data) => {
             throw new ApiError(404, "Employee not found");
         }
 
-        const productiveDataList = await Productive.find({ user: userID });
 
-        // Map of productive executables for quick lookup
-        const productiveExecutables = productiveDataList.reduce((map, item) => {
-            map[item.executable] = item.isProductive;
-            return map;
-        }, {});
-
-        // Update the productivity flag if there's a match with productive executables
-        data.forEach(activity => {
-            if (productiveExecutables[activity.active_window] === true) {
-                activity.productivity = 'Productive';
-            } else if (productiveExecutables[activity.active_window] === false) {
-                activity.productivity = 'Unproductive';
-            } else {
-                activity.productivity = 'Unidentified';
-            }
-        });
 
         employee.activities.push(...data);
         const savedEmployee = await employee.save();
@@ -70,7 +53,7 @@ const startSocketServer = asyncHandler(async (server) => {
             console.log("activities:", activities.length);
 
 
-            if (activities.length >= 5) {
+            if (activities.length >= 2) {
                 updateEmployeeActivities(activities)
                 activities = []
             }

@@ -114,6 +114,7 @@ const employeeSchema = new mongoose.Schema(
                 pc_name: String,
                 start_time: String,
                 end_time: String,
+                executable: String,
                 productivity: {
                     type: String,
                     enum: ["Productive", "Unproductive", "Unidentified"],

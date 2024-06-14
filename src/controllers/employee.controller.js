@@ -292,5 +292,55 @@ const getActivitiesDataSingle = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, { productivity, email: email }, "Chart Data"));
 });
 
+const getTopApplications = asyncHandler(async (req, res) => {
+    const activities = await Employee.find()
+    const executableTimes = {};
 
-export { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData, getActivitiesDataSingle }
+    const data = activities.map((item) => {
+        return item.activities
+    })
+
+
+    const allActivities = data.flat()
+
+
+
+    allActivities.forEach((activity) => {
+        const executable = activity.executable
+
+        console.log(executable);
+
+        if (executable) {
+            const timeSpent = parseFloat(activity.time_spent);
+
+            if (!executableTimes[executable]) {
+                executableTimes[executable] = 0;
+            }
+
+            executableTimes[executable] += timeSpent;
+        }
+
+    })
+
+
+    const topApplications = Object.entries(executableTimes).map(([name, time]) => ({
+        name,
+        hours: Math.round(time / 3600)
+    })).sort((a, b) => b.hours - a.hours);
+
+
+    return res.status(200).json(new ApiResponse(200, topApplications, "Top Applications"));
+})
+
+
+export {
+    createEmployee,
+    getEmployee,
+    deleteEmployee,
+    updateEmployee,
+    getEmployeeByKey,
+    getEmployeesActivity,
+    getActivitiesData,
+    getActivitiesDataSingle,
+    getTopApplications
+}
