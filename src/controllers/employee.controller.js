@@ -294,6 +294,7 @@ const getActivitiesDataSingle = asyncHandler(async (req, res) => {
 
 const getTopApplications = asyncHandler(async (req, res) => {
     const activities = await Employee.find()
+
     const executableTimes = {};
 
     const data = activities.map((item) => {
@@ -306,9 +307,9 @@ const getTopApplications = asyncHandler(async (req, res) => {
 
 
     allActivities.forEach((activity) => {
-        const executable = activity.executable
+        const executable = activity.active_window
 
-        console.log(executable);
+        console.log(activity.executable);
 
         if (executable) {
             const timeSpent = parseFloat(activity.time_spent);
@@ -325,12 +326,55 @@ const getTopApplications = asyncHandler(async (req, res) => {
 
     const topApplications = Object.entries(executableTimes).map(([name, time]) => ({
         name,
-        hours: Math.round(time / 3600)
+        hours: Math.round(time / 3600),
+        email: activities.email
     })).sort((a, b) => b.hours - a.hours);
 
 
     return res.status(200).json(new ApiResponse(200, topApplications, "Top Applications"));
 })
+
+const topUsers = asyncHandler(async (req, res) => {
+    // Fetch the last two oldest employees
+    const employees = await Employee.find().sort({ createdAt: 1 }).limit(2);
+
+    const productivityData = employees.map(employee => {
+        const activities = employee.activities;
+        const days = {};
+
+        activities.forEach(entry => {
+            const date = new Date(entry.start_time);
+            const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; // "YYYY-MM-DD" format
+
+            if (!days[dayKey]) {
+                days[dayKey] = { productive: 0, unproductive: 0, unidentified: 0 };
+            }
+
+            const timeInHours = entry.time_spent / 3600; // Convert seconds to hours
+
+            if (entry.productivity === "Productive") {
+                days[dayKey].productive += timeInHours;
+            } else if (entry.productivity === "Unidentified") {
+                days[dayKey].unidentified += timeInHours;
+            } else if (entry.productivity === "Unproductive") {
+                days[dayKey].unproductive += timeInHours;
+            }
+        });
+
+        const productivity = Object.keys(days).map(day => ({
+            productive: days[day].productive,
+            unproductive: days[day].unproductive,
+            unidentified: days[day].unidentified
+        }));
+
+        return {
+            email: employee.email,
+            productivity
+        };
+    });
+
+    return res.status(200).json(new ApiResponse(200, { data: productivityData, message: "Success", success: true }));
+});
 
 
 export {
@@ -342,5 +386,6 @@ export {
     getEmployeesActivity,
     getActivitiesData,
     getActivitiesDataSingle,
-    getTopApplications
+    getTopApplications,
+    topUsers
 }

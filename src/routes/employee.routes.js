@@ -1,4 +1,4 @@
-import { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData, getActivitiesDataSingle, getTopApplications } from "../controllers/employee.controller.js";
+import { createEmployee, getEmployee, deleteEmployee, updateEmployee, getEmployeeByKey, getEmployeesActivity, getActivitiesData, getActivitiesDataSingle, getTopApplications, topUsers } from "../controllers/employee.controller.js";
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 
@@ -28,5 +28,6 @@ router.route("/key").get(getEmployeeByKey)
 router.route("/activity").get(verifyJWT, getEmployeesActivity)
 router.route("/activity/data").get(verifyJWT, getActivitiesData)
 router.route("/activity/data/single").get(verifyJWT, getActivitiesDataSingle)
-router.route("/top").get(getTopApplications)
+router.route("/activity/topApplications").get(getTopApplications)
+router.route("/activity/topUsers").get(topUsers)
 export default router 
