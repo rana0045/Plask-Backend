@@ -68,13 +68,35 @@ const getEmployee = asyncHandler(async (req, res) => {
     }
 
     const employee = await Employee.findById(id).select("-activities");
-
+    console.log(employee);
     if (!employee) {
         res.status(404).json(new ApiResponse(404, "Employee not found", ""));
         return; // Important: return to avoid executing further code
     }
 
-    res.status(200).json(new ApiResponse(200, employee, ""));
+    const firstActivity = await Employee.aggregate([
+        { $match: { _id: employee._id } },
+        { $unwind: '$activities' },
+        { $sort: { "activities.start_time": 1 } },
+        { $limit: 1 },
+        { $project: { activity: "$activities" } }
+    ])
+
+
+    const lastActivity = await Employee.aggregate([
+        { $match: { _id: employee._id } },
+        { $unwind: '$activities' },
+        { $sort: { "activities.start_time": -1 } },
+        { $limit: 1 },
+        { $project: { activity: "$activities" } }
+    ])
+    const activities = {
+        first: firstActivity[0] ? firstActivity[0].activity : null,
+        last: lastActivity[0] ? lastActivity[0].activity : null
+    };
+
+    res.status(200).json(new ApiResponse(200, { ...employee._doc, activities }, ""));
+
 });
 
 const deleteEmployee = asyncHandler(async (req, res) => {

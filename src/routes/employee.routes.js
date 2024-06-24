@@ -7,27 +7,24 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 const router = Router();
 
 // Create a new Employee
-
-router.route("/add").post(
-    verifyJWT,
-    createEmployee)
+router.route("/add").post(verifyJWT, createEmployee)
 //get the all employees data
-router.route("/get").get(
-    verifyJWT,
-    getEmployee)
+router.route("/get").get(verifyJWT, getEmployee)
 //delete the employee data
-router.route("/delete").delete(
-    verifyJWT,
-    deleteEmployee)
+router.route("/delete").delete(verifyJWT, deleteEmployee)
 //update the employee data
-router.route("/update").put(
-    verifyJWT,
-    updateEmployee)
+router.route("/update").put(verifyJWT, updateEmployee)
 //get the single employee data
 router.route("/key").get(getEmployeeByKey)
+//get the employees activity
 router.route("/activity").get(verifyJWT, getEmployeesActivity)
+//get the activities data
 router.route("/activity/data").get(verifyJWT, getActivitiesData)
+//get the activities data single
 router.route("/activity/data/single").get(verifyJWT, getActivitiesDataSingle)
+//get the top applications
 router.route("/activity/topApplications").get(getTopApplications)
+//get the top users
 router.route("/activity/topUsers").get(topUsers)
+
 export default router 
