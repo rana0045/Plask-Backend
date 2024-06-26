@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-
+import bcrypt, { hash } from "bcrypt"
 const generateTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
@@ -108,6 +108,16 @@ const updateUser = asyncHandler(async (req, res) => {
     if (isEmailExist && isEmailExist._id !== req.user._id && isEmailExist.email === email) {
         res.status(400).json(new ApiResponse(400, "Email already exists", ""));
         throw new ApiError(400, "Email already exists");
+    }
+
+    if (updates.oldPassword == undefined) {
+        res.status(409).json(new ApiResponse(409, "Old password is required", ""));
+        throw new ApiError(409, "Old password is required");
+    }
+    const hashPass = await bcrypt.compare(updates.oldPassword, user.password)
+    if (hashPass === false) {
+        res.status(409).json(new ApiResponse(409, "Incorrect password", ""));
+        throw new ApiError(409, "Incorrect password");
     }
     Object.assign(user, updates);
     await user.save({ validateBeforeSave: false });

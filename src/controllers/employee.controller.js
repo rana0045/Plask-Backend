@@ -95,7 +95,7 @@ const getEmployee = asyncHandler(async (req, res) => {
         last: lastActivity[0] ? lastActivity[0].activity : null
     };
 
-    res.status(200).json(new ApiResponse(200, { ...employee._doc, activities }, ""));
+    res.status(200).json(new ApiResponse(200, firstActivity, ""));
 
 });
 
@@ -217,7 +217,6 @@ const getEmployeesActivity = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, employee.activities, "Employee activities"));
 });
 
-
 const getActivitiesData = asyncHandler(async (req, res) => {
 
     const activities = await Employee.find()
@@ -264,7 +263,6 @@ const getActivitiesData = asyncHandler(async (req, res) => {
 
 
 })
-
 
 const getActivitiesDataSingle = asyncHandler(async (req, res) => {
     const id = req.query.id;
