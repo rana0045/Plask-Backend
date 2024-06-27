@@ -114,11 +114,14 @@ const updateUser = asyncHandler(async (req, res) => {
         res.status(409).json(new ApiResponse(409, "Old password is required", ""));
         throw new ApiError(409, "Old password is required");
     }
+
     const hashPass = await bcrypt.compare(updates.oldPassword, user.password)
+
     if (hashPass === false) {
         res.status(409).json(new ApiResponse(409, "Incorrect password", ""));
         throw new ApiError(409, "Incorrect password");
     }
+
     Object.assign(user, updates);
     await user.save({ validateBeforeSave: false });
 

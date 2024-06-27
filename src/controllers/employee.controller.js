@@ -327,7 +327,7 @@ const getTopApplications = asyncHandler(async (req, res) => {
 
 
     allActivities.forEach((activity) => {
-        const executable = activity.active_window
+        const executable = activity.executable
 
         console.log(activity.executable);
 
