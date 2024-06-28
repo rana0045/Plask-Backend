@@ -68,7 +68,7 @@ const getEmployee = asyncHandler(async (req, res) => {
     }
 
     const employee = await Employee.findById(id).select("-activities");
-    console.log(employee);
+
     if (!employee) {
         res.status(404).json(new ApiResponse(404, "Employee not found", ""));
         return; // Important: return to avoid executing further code
@@ -214,8 +214,12 @@ const getEmployeesActivity = asyncHandler(async (req, res) => {
 
     employee.activities = updatedActivities;
     await employee.save();
+    const data = {
+        email: employee?.email,
+        activities: employee.activities
+    }
 
-    res.status(200).json(new ApiResponse(200, employee.activities, "Employee activities"));
+    res.status(200).json(new ApiResponse(200, data, "Employee activities"));
 });
 
 const getActivitiesData = asyncHandler(async (req, res) => {

@@ -99,6 +99,11 @@ const employeeSchema = new mongoose.Schema(
             type: String,
             default: () => Math.random().toString(36).slice(2),
         },
+        pc_name: {
+            type: String,
+            default: null
+
+        },
         userEmail: {
             type: String,
             required: true

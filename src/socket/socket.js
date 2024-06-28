@@ -2,12 +2,9 @@ import { Server } from "socket.io";
 import asyncHandler from "../utils/asyncHandler.js";
 import { Employee } from "../models/employee.model.js"
 import ApiError from "../utils/ApiError.js";
-import Productive from "../models/productive.model.js";
-import { User } from "../models/user.model.js";
 const updateEmployeeActivities = async (data) => {
     try {
         // Check if req.user is defined and has the _id property
-
 
 
         const employee = await Employee.findOne({ key: data[0].userID });
@@ -19,9 +16,12 @@ const updateEmployeeActivities = async (data) => {
 
 
         employee.activities.push(...data);
+        if (employee.pc_name === null) {
+            employee.pc_name = data[0]?.pc_name
+        }
         const savedEmployee = await employee.save();
 
-        console.log(savedEmployee);
+
         return { success: true, message: "Employee activities updated successfully" };
 
     } catch (error) {
