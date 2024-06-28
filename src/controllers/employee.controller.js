@@ -366,6 +366,9 @@ const topUsers = asyncHandler(async (req, res) => {
     const productivityData = employees.map(employee => {
         const activities = employee.activities;
         const days = {};
+        let totalProductiveHours = 0;
+        let totalUnproductiveHours = 0;
+        let totalUnidentifiedHours = 0;
 
         activities.forEach(entry => {
             const date = new Date(entry.start_time);
@@ -379,27 +382,37 @@ const topUsers = asyncHandler(async (req, res) => {
 
             if (entry.productivity === "Productive") {
                 days[dayKey].productive += timeInHours;
+                totalProductiveHours += timeInHours;
             } else if (entry.productivity === "Unidentified") {
                 days[dayKey].unidentified += timeInHours;
+                totalUnidentifiedHours += timeInHours;
             } else if (entry.productivity === "Unproductive") {
                 days[dayKey].unproductive += timeInHours;
+                totalUnproductiveHours += timeInHours;
             }
         });
 
-        const productivity = Object.keys(days).map(day => ({
-            productive: days[day].productive,
-            unproductive: days[day].unproductive,
-            unidentified: days[day].unidentified
+        const productivity = Object.values(days).map(day => ({
+            productive: day.productive,
+            unproductive: day.unproductive,
+            unidentified: day.unidentified
         }));
 
+        const totalHoursInSeconds = (totalProductiveHours + totalUnproductiveHours + totalUnidentifiedHours) * 3600;
+        const totalHours = Math.floor(totalHoursInSeconds / 3600);
+        const totalMinutes = Math.floor((totalHoursInSeconds % 3600) / 60);
+        const totalTimeFormatted = `${totalHours}h ${totalMinutes}m`;
+
         return {
-            email: employee.email,
+            name: employee.email,
+            totalTime: totalTimeFormatted,
             productivity
         };
     });
 
     return res.status(200).json(new ApiResponse(200, { data: productivityData, message: "Success", success: true }));
 });
+
 
 
 export {
