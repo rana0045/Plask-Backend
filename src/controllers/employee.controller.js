@@ -91,11 +91,12 @@ const getEmployee = asyncHandler(async (req, res) => {
         { $project: { activity: "$activities" } }
     ])
     const activities = {
+        Employee: employee,
         first: firstActivity[0] ? firstActivity[0].activity : null,
         last: lastActivity[0] ? lastActivity[0].activity : null
     };
 
-    res.status(200).json(new ApiResponse(200, firstActivity, ""));
+    res.status(200).json(new ApiResponse(200, activities, ""));
 
 });
 
