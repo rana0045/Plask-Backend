@@ -196,12 +196,12 @@ const getEmployeesActivity = asyncHandler(async (req, res) => {
     const updatedActivities = employee.activities.map(activity => {
         let isProductive = "Unidentified";
 
-        if (activity.active_window) {
+        if (activity.executable) {
             for (const isPro of productiveDataList) {
-                if (activity.active_window.includes(isPro.executable) && isPro.isProductive === true) {
+                if (activity.executable.includes(isPro.executable) && isPro.isProductive === true) {
                     isProductive = "Productive";
                     break;
-                } else if (activity.active_window.includes(isPro.executable) && isPro.isProductive === false) {
+                } else if (activity.executable.includes(isPro.executable) && isPro.isProductive === false) {
                     isProductive = "Unproductive";
                     break;
                 }
@@ -412,7 +412,73 @@ const topUsers = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, { data: productivityData, message: "Success", success: true }));
 });
+const getTopWebsites = asyncHandler(async (req, res) => {
+    const activities = await Employee.find()
 
+    const executableTimes = {};
+
+    const data = activities.map((item) => {
+        return item.activities
+    })
+
+
+    const allActivities = data.flat()
+
+
+
+    allActivities.forEach((activity) => {
+        const executable = activity.executable
+
+
+
+        if (executable) {
+            const timeSpent = parseFloat(activity.time_spent);
+
+            if (!executableTimes[executable]) {
+                executableTimes[executable] = 0;
+            }
+
+            executableTimes[executable] += timeSpent;
+        }
+
+    })
+
+
+    const topApplications = Object.entries(executableTimes).map(([name, time]) => ({
+        name,
+        hours: Math.round(time / 3600),
+        email: activities.email
+    })).sort((a, b) => b.hours - a.hours);
+
+
+    return res.status(200).json(new ApiResponse(200, topApplications, "Top Applications"));
+})
+
+
+const getUncategorizedData = asyncHandler(async (req, res) => {
+    try {
+        const userID = req.user.email;
+        const employees = await Employee.find({ userEmail: userID });
+
+        const uncategorizedData = [];
+
+        employees.forEach(employee => {
+            if (Array.isArray(employee.activities)) {
+                const unidentifiedActivities = employee.activities.filter(activity => activity.productivity === "Unidentified");
+                uncategorizedData.push(...unidentifiedActivities);
+            }
+        });
+
+        if (uncategorizedData.length === 0) {
+            return res.status(404).json(new ApiResponse(404, " ", 'Not Found'));
+        }
+
+        return res.status(200).json(new ApiResponse(200, uncategorizedData));
+    } catch (error) {
+        console.error('Error fetching uncategorized data:', error);
+        return res.status(500).json(new ApiResponse(500, error.message, 'Internal Server Error'));
+    }
+});
 
 
 export {
@@ -425,5 +491,7 @@ export {
     getActivitiesData,
     getActivitiesDataSingle,
     getTopApplications,
-    topUsers
+    topUsers,
+    getTopWebsites,
+    getUncategorizedData
 }

@@ -51,7 +51,7 @@ const getProductiveByID = asyncHandler(async (req, res) => {
 
 const deleteProductiveByID = asyncHandler(async (req, res) => {
     const id = req.query.id
-    console.log(id);
+
     if (!id) {
         res.status(400).json(new ApiResponse(400, {}, "ID is required"))
         throw new ApiError(400, "ID is required")
